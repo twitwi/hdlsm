@@ -5,33 +5,31 @@ from PIL import ImageFont
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.cm as cm
-from theano import config
-
-from Confs import default
+import json
 
 # Define font style (Hand Written) and color.
-FONT_NAME = default('fontName')
-FONT_SIZE = int(default('fontSize'))
+FONT_NAME = 'JennaSue.ttf'
+FONT_SIZE = 20
 
-MOTIFS_STRING = default('motifs')
+MOTIFS_STRING = [("eggplant", 2), ("egg", 1), ("plant", 1), ("good", 2), ("bad", 1), ("badland",2)]
 
-MOTIF_HEIGHT = int(default('docHeight'))
-MOTIF_LENGTH = int(default('filtLength'))
+MOTIF_HEIGHT = 25
+MOTIF_LENGTH = 45
 
 # Define the parameters
-NB_OCCURENCE_PER_DOC = int(default('nbOccMotifPerDoc'))
-DOC_LENGTH = int(default('docLength'))
-NB_OBSERVATION_PER_OCC_MIN = int(default('nbObsPerMotifMin'))
-NB_OBSERVATION_PER_OCC_MAX = int(default('nbObsPerMotifMax'))
-NB_TDOC = int(default('nbGeneratedTdoc'))
-DEF_PERC_NOISE = default('percNoise')
+NB_OCCURENCE_PER_DOC = 12
+DOC_LENGTH = 500
+NB_OBSERVATION_PER_OCC_MIN = 3500
+NB_OBSERVATION_PER_OCC_MAX = 4500
+NB_TDOC = 10
+DEF_PERC_NOISE = 0 #0.33
 PERC_NOISE = float(DEF_PERC_NOISE)
 
 # Files parameters
-DOC_PREFIX = default('prefDoc')+"noise"+str(DEF_PERC_NOISE)+"_"
-DOC_EXT = default('extDoc')
-MOTIF_PREFIX = default('prefMotif')
-IMG_EXT = default('extImg')
+DOC_PREFIX = 'synth_'
+DOC_EXT = '.json'
+MOTIF_PREFIX = 'synthimage_'
+IMG_EXT = '.png'
 
 def get_size(string, font):
     '''
@@ -62,7 +60,7 @@ def string_to_matrix(string):
     path_motif = MOTIF_PREFIX+string+IMG_EXT
     img.save(path_motif)
 
-    motif = np.asarray(img, config.floatX)   # Motif Matrix
+    motif = np.asarray(img, np.float32)   # Motif Matrix
 
     return motif
 
@@ -137,10 +135,13 @@ if __name__ == '__main__':
         plt.savefig(path+IMG_EXT)
 
         l = []
-        output = open(path+DOC_EXT, 'w')
+        #output = open(path+DOC_EXT, 'w')
         for length in range(DOC_LENGTH):
             for height in range(MOTIF_HEIGHT):
                 if temp_doc[length][height] != 0.0:
-                    output.write("%s:%s " %(height, temp_doc[length][height]))
-            output.write("\n")
-        output.close()
+                    #output.write("%s:%s " %(height, temp_doc[length][height]))
+                    l.append({"w": height, "t": length})
+            #output.write("\n")
+        #output.close()
+        with open(path+DOC_EXT, 'w') as f:
+            json.dump(l, f)
